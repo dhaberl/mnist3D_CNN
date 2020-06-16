@@ -194,11 +194,11 @@ def create_3DCNN_model(input_shape):
 def main():
 
     # Data directory
-    data_dir = "C:\\Users\\david.haberl\\PycharmProjects\\ProjectThesis2\\Data\\Mnist3D\\numpy_data\\"
+    data_dir = "data/"
 
     # Define hyperparameters
-    num_epochs = 1
-    batch_size = 100
+    num_epochs = 100
+    batch_size = 32
     train_ratio = 0.7
     validation_ratio = 0.15
     test_ratio = 0.15
