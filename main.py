@@ -199,7 +199,7 @@ def create_3DCNN_model(input_shape):
 def main():
 
     # Data directory
-    data_dir = "C:\\Users\\david.haberl\\PycharmProjects\\ProjectThesis2\\Data\\Mnist3D\\numpy_data\\"
+    data_dir = "data/"
 
     # Rescale images
     rescale = False
