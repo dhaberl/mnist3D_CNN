@@ -10,6 +10,11 @@ import plotly.graph_objs as go
 import time
 import math
 import random
+from DataGenerator import DataGenerator
+
+# Silent warning of Scipy.ndimage.zoom -> warning has no functional impact on the code
+import warnings
+warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
 
 def get_dims(data_dir):
@@ -22,7 +27,7 @@ def get_dims(data_dir):
 
 
 def load_data(ids, labels, data_dir):
-    """Returns images and labels of given IDs"""
+    """Returns images and labels of given IDs. Note: This function is replaced by the Data Generator."""
     num_samples = len(ids)
     dims = get_dims(data_dir)
     X = np.empty((num_samples, dims[0], dims[1], dims[2], dims[3]))
@@ -143,9 +148,9 @@ def plot3d(array3d, show=True):
 
     layout = go.Layout(
         scene=dict(
-            xaxis=dict(range=[0, 26]),
-            yaxis=dict(range=[0, 26]),
-            zaxis=dict(range=[0, 26])))
+            xaxis=dict(range=[0, 16]),
+            yaxis=dict(range=[0, 16]),
+            zaxis=dict(range=[0, 16])))
 
     fig = go.Figure(data=[trace], layout=layout)
 
@@ -155,7 +160,7 @@ def plot3d(array3d, show=True):
 
 def predict(samples, model, show=True):
     """Return class predicted by model for the given samples"""
-    predictions = model.predict(samples)
+    predictions = model.predict_generator(generator=samples, use_multiprocessing=False, workers=6)
     if show:
         print("-------")
         for prediction in predictions:
@@ -194,11 +199,15 @@ def create_3DCNN_model(input_shape):
 def main():
 
     # Data directory
-    data_dir = "data/"
+    data_dir = "C:\\Users\\david.haberl\\PycharmProjects\\ProjectThesis2\\Data\\Mnist3D\\numpy_data\\"
+
+    # Rescale images
+    rescale = False
+    output_dim = (28, 28, 28)
 
     # Define hyperparameters
-    num_epochs = 100
-    batch_size = 32
+    num_epochs = 1
+    batch_size = 100
     train_ratio = 0.7
     validation_ratio = 0.15
     test_ratio = 0.15
@@ -218,24 +227,45 @@ def main():
                            test_ratio=test_ratio)
 
     # Load data
-    train_images, train_labels = load_data(partition["train"], labels, data_dir)
-    validation_images, validation_labels = load_data(partition["validation"], labels, data_dir)
-    test_images, test_labels = load_data(partition["test"], labels, data_dir)
+    da_parameters = {"width_shift": 5.,
+                     "height_shift": 5.,
+                     "depth_shift": 5.,
+                     "rotation_range": 15.,
+                     "horizontal_flip": 0.5,
+                     "vertical_flip": 0.5,
+                     "min_zoom": 0.7,
+                     "max_zoom": 1.1,
+                     "random_crop_size": 0.85,
+                     "random_crop_rate": 1.,
+                     "center_crop_size": 0.85,
+                     "center_crop_rate": 1.,
+                     "gaussian_filter_std": 1.,
+                     "gaussian_filter_rate": 1.
+                     }
+
+    training_images = DataGenerator(data_dir=data_dir, list_ids=partition["train"], labels=labels,
+                                    batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
+                                    rescale=rescale, output_dim=output_dim, **da_parameters)
+
+    validation_images = DataGenerator(data_dir=data_dir, list_ids=partition["validation"], labels=labels,
+                                      batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
+                                      rescale=rescale, output_dim=output_dim, **da_parameters)
+
+    test_images = DataGenerator(data_dir=data_dir, list_ids=partition["test"], labels=labels,
+                                batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
+                                rescale=rescale, output_dim=output_dim)
 
     # Create/Compile CNN model
     model = create_3DCNN_model(dims)
 
     # Train model
-    train_summary = model.fit(x=train_images,
-                              y=train_labels,
-                              validation_data=(validation_images, validation_labels),
-                              batch_size=batch_size,
-                              epochs=num_epochs)
+    train_summary = model.fit_generator(generator=training_images, validation_data=validation_images,
+                                        use_multiprocessing=True, workers=6, epochs=num_epochs)
 
-    # print(train_summary.history)
+    print(train_summary.history)
 
     # Evaluate fitted model using test data
-    test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
+    test_loss, test_acc = model.evaluate_generator(generator=test_images, use_multiprocessing=True, workers=6)
     print("\nTest ACC:", round(test_acc, 3))
 
 # =============================================================================
@@ -259,16 +289,21 @@ def main():
     # plot_train_val_acc(accs)
     # plot_train_val_loss(losses)
 
-    # Plot incorrectly predicted samples
-    # plot_incorrects(model, test_images, test_labels)
+    # Plot incorrectly predicted samples TODO: testing required when using DataGenerator
+    # plot_incorrects(model, test_images, test_images.classes)
 
-    # Prediction of query samples
-    # predicted = predict(np.array([test_images[0]]), model, show=True)
+    # Prediction of query samples TODO: testing required when using DataGenerator
+    # predicted = predict(np.array([test_images][0]), model, show=True)
     # print("Predicted label:", np.argmax(predicted))
-    # print("True label:", np.argmax(test_labels[0]))
+    # print("True label:", np.argmax(test_images.classes[0]))
 
     # Plot an image
-    # plot3d(test_images[1], show=True)
+    # samples = test_images.__getitem__(0)
+    # plot3d(samples[0][3], show=True)
+    # print(training_images.labels)
+
+    # Check if rescale works properly by printing the output dimensions of the data generator
+    # print(samples[0][0].shape)
 
     # Print model summary including parameters and architecture
     # print(model.summary())
