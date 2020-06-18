@@ -38,28 +38,6 @@ sample-0; 2 \
 sample-1; 7 \
 ...
 
-### Dataset
-A subset of 42 000 grey-scale images of the original MNIST database was used. Each image contains 28x28 pixels, for a total of 784 pixels. Each pixel has a single pixel-value associated with it, indicating the brightness (low values) or darkness (high values) of that pixel. This pixel-value is an integer between 0 (white) and 255 (black). 
-
-The images are stored as npy-files. The dataset also contains a csv-file with the ID and the corresponding ground truth label.
-
-Download the dataset from: [LINK] 
-
-folder/
-- main.py
-- DataGenerator.py
-- data/
-	- img_0.npy
-	- ...
-	- labels.csv
-
-where labels.csv contains for instance:
-
-ID; Label \
-img_0; 2 \
-img_1; 7 \
-...
-
 ### Data Generator
 The Data Generator generates the dataset in batches on multiple cores for real-time data feeding to the machine learning model. 
 
@@ -75,7 +53,7 @@ Input parameters are:
 - list_ids: list of IDs as shown above (list)
 - labels: list of labels as shown above (list)
 - batch_size: number of samples that will be propagated through the network (integer)
-- dim: dimensions of the data (tuple with intergers). E.g., image with 16x16x16 voxels => (16, 16, 16)
+- dim: dimensions of the data (tuple with intergers). E.g., image with 16x16x16 pixels => (16, 16, 16)
 - n_channels: number of channels (integer). E.g., RGB = 3 channels
 - n_classes: number of classes (integer)
 - shuffle: whether to shuffle at generation or not (boolean) 
