@@ -57,8 +57,8 @@ Input parameters are:
 - n_channels: number of channels (integer). E.g., RGB = 3 channels
 - n_classes: number of classes (integer)
 - shuffle: whether to shuffle at generation or not (boolean) 
-- rescale: whether to rescale the samples before generation or not (boolean).
-- output_dim: dimensions of the samples after rescaling (tuple with integers). E.g., rescaling a sample with original dim=(16, 16, 16) to output_dim=(28, 28, 28) 
+- padding: whether to pad the samples before generation or not (boolean).
+- output_dim: dimensions of the samples after padding (tuple with integers). E.g., padding a sample with original dim=(16, 16, 16) to output_dim=(28, 28, 28) 
 - **da_parameters
 
 ### Data augmentation
@@ -90,8 +90,8 @@ Set data directory and define hyperparameters, e.g.:
 
 ```
 - data_dir = 'data/'
-- rescale = False
-- output_dim = (28, 28, 28) # only needed when rescale is True
+- padding = False
+- output_dim = (28, 28, 28) # only needed when padding is True
 - num_epochs = 50
 - batch_size = 32
 - train_ratio = 0.7

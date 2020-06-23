@@ -8,7 +8,7 @@ import random
 class DataGenerator(keras.utils.Sequence):
     """Generates data for keras"""
     def __init__(self, data_dir, list_ids, labels, batch_size=100, dim=(16, 16, 16), n_channels=1, n_classes=10,
-                 shuffle=True, rescale=False, output_dim=(28, 28, 28), width_shift=0.0, height_shift=0.0,
+                 shuffle=True, padding=False, output_dim=(28, 28, 28), width_shift=0.0, height_shift=0.0,
                  depth_shift=0.0, rotation_range=0.0, horizontal_flip=0.0, vertical_flip=0.0, min_zoom=0.0,
                  max_zoom=0.0, random_crop_size=0.0, random_crop_rate=0.0, center_crop_size=0.0, center_crop_rate=0.0,
                  gaussian_filter_std=0.0, gaussian_filter_rate=0.0):
@@ -22,7 +22,7 @@ class DataGenerator(keras.utils.Sequence):
         self.n_classes = n_classes
         self.classes = []
         self.shuffle = shuffle
-        self.rescale = rescale
+        self.padding = padding
         self.output_dim = output_dim
         self.width_shift = width_shift
         self.height_shift = height_shift
@@ -66,8 +66,8 @@ class DataGenerator(keras.utils.Sequence):
         if self.shuffle is True:
             np.random.shuffle(self.indexes)
 
-    def __Rescale(self, sample_temp):
-        if self.rescale is True:
+    def __padding(self, sample_temp):
+        if self.padding is True:
             r = self.dim[0]/self.output_dim[0]
             new_sample_temp = np.zeros((*self.output_dim, self.n_channels))
 
@@ -231,7 +231,7 @@ class DataGenerator(keras.utils.Sequence):
     def __data_generation(self, list_ids_temp):
         """Generates data containing batch_size samples"""  # X: (n_samples, *dim, n_channels)
         # Initialization
-        if self.rescale is True:
+        if self.padding is True:
             X = np.empty((self.batch_size, *self.output_dim, self.n_channels))
         else:
             X = np.empty((self.batch_size, *self.dim, self.n_channels))
@@ -244,8 +244,8 @@ class DataGenerator(keras.utils.Sequence):
             sample_path = os.path.join(self.data_dir, ID + ".npy")
             sample_temp = np.load(sample_path).astype("float32")
 
-            # Rescale 3D image
-            sample_temp = self.__Rescale(sample_temp)
+            # Padding 3D image
+            sample_temp = self.__padding(sample_temp)
 
             # Data Augmentation
             random.seed()

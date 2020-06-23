@@ -201,8 +201,8 @@ def main():
     # Data directory
     data_dir = "data/"
 
-    # Rescale images
-    rescale = False
+    # Padding images
+    padding = False
     output_dim = (28, 28, 28)
 
     # Define hyperparameters
@@ -245,15 +245,15 @@ def main():
 
     training_images = DataGenerator(data_dir=data_dir, list_ids=partition["train"], labels=labels,
                                     batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
-                                    rescale=rescale, output_dim=output_dim, **da_parameters)
+                                    padding=padding, output_dim=output_dim, **da_parameters)
 
     validation_images = DataGenerator(data_dir=data_dir, list_ids=partition["validation"], labels=labels,
                                       batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
-                                      rescale=rescale, output_dim=output_dim, **da_parameters)
+                                      padding=padding, output_dim=output_dim, **da_parameters)
 
     test_images = DataGenerator(data_dir=data_dir, list_ids=partition["test"], labels=labels,
                                 batch_size=batch_size, dim=dims[0:3], n_channels=1, n_classes=10, shuffle=True,
-                                rescale=rescale, output_dim=output_dim)
+                                padding=padding, output_dim=output_dim)
 
     # Create/Compile CNN model
     model = create_3DCNN_model(dims)
@@ -302,7 +302,7 @@ def main():
     # plot3d(samples[0][3], show=True)
     # print(training_images.labels)
 
-    # Check if rescale works properly by printing the output dimensions of the data generator
+    # Check if padding works properly by printing the output dimensions of the data generator
     # print(samples[0][0].shape)
 
     # Print model summary including parameters and architecture
