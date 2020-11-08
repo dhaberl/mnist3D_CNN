@@ -21,7 +21,7 @@ The dataset consists of 12 000 samples of a 3D version of the 2D MNIST dataset. 
 
 The images are stored as npy-files. The dataset also contains a csv-file with the ID and the corresponding ground truth label.
 
-Download the dataset from: [LINK] 
+Download the dataset from: https://www.kaggle.com/daavoo/3d-mnist/data
 
 folder/
 - main.py
